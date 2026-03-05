@@ -202,7 +202,7 @@ svg {
   stroke-linecap: round;
   cursor: pointer;
   opacity: 0.85;
-  transition: 120ms ease;
+  transition: 220ms ease;
 }
 
 .bond:hover {
@@ -216,6 +216,16 @@ svg {
 
 .bond.selected-formed {
   stroke: var(--product);
+}
+
+.bond.product-unformed {
+  opacity: 0.2;
+  stroke: #7f8e86;
+  stroke-dasharray: 6 8;
+}
+
+.bond.reactant-broken {
+  opacity: 0.58;
 }
 
 .bond.breaking-anim {

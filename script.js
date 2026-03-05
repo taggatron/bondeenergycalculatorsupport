@@ -174,6 +174,19 @@ const energyInValue = document.getElementById("energyInValue");
 const energyOutValue = document.getElementById("energyOutValue");
 const netFlowValue = document.getElementById("netFlowValue");
 
+const SUBSCRIPT_MAP = {
+  0: "\u2080",
+  1: "\u2081",
+  2: "\u2082",
+  3: "\u2083",
+  4: "\u2084",
+  5: "\u2085",
+  6: "\u2086",
+  7: "\u2087",
+  8: "\u2088",
+  9: "\u2089"
+};
+
 function buildReactionOptions() {
   REACTIONS.forEach((reaction, idx) => {
     const option = document.createElement("option");
@@ -193,7 +206,7 @@ function clearSelections() {
 function renderReaction() {
   const reaction = REACTIONS[state.reactionIndex];
   wordEquationEl.textContent = reaction.wordEquation;
-  symbolEquationEl.textContent = reaction.symbolEquation;
+  symbolEquationEl.textContent = formatChemicalText(reaction.symbolEquation);
 
   reactantsArea.innerHTML = "";
   productsArea.innerHTML = "";
@@ -213,7 +226,7 @@ function renderSide(molecules, container, sideType) {
 
       const title = document.createElement("p");
       title.className = "molecule-title";
-      title.textContent = `${molecule.formula} (${instance})`;
+      title.textContent = `${formatFormula(molecule.formula)} (${instance})`;
       card.append(title);
 
       const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -234,6 +247,9 @@ function drawBonds(svg, molecule, instanceKey, sideType) {
     const atomB = molecule.atoms[bond.b];
     const bondId = `${instanceKey}-bond-${bondIndex}`;
     const energy = BOND_ENERGIES[bond.type];
+    const dx = atomB.x - atomA.x;
+    const dy = atomB.y - atomA.y;
+    const length = Math.hypot(dx, dy);
 
     const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
     line.setAttribute("x1", String(atomA.x));
@@ -248,6 +264,11 @@ function drawBonds(svg, molecule, instanceKey, sideType) {
     line.dataset.bondId = bondId;
     line.dataset.bondType = bond.type;
     line.dataset.energy = String(energy);
+    line.dataset.length = String(length);
+
+    if (sideType === "product") {
+      line.classList.add("product-unformed");
+    }
 
     line.addEventListener("click", () => toggleBond(line));
     line.addEventListener("keydown", (event) => {
@@ -298,14 +319,79 @@ function toggleBond(line) {
   if (targetMap.has(bondId)) {
     targetMap.delete(bondId);
     line.classList.remove(className);
+    resetBondVisual(line, sideType);
   } else {
     targetMap.set(bondId, { bondType, energy });
     line.classList.add(className);
     playBondAnimation(line, animationClass);
     showEnergyPopup(line, `${sign}${energy}`, popupPolarity);
+    if (sideType === "reactant") {
+      applyBrokenVisual(line);
+    } else {
+      applyMadeVisual(line);
+    }
   }
 
   renderEnergyLists();
+}
+
+function applyBrokenVisual(line) {
+  const len = Number(line.dataset.length) || 50;
+  line.classList.add("reactant-broken");
+  line.style.strokeDasharray = `${(len * 0.34).toFixed(1)} ${(len * 0.32).toFixed(1)}`;
+  line.style.strokeDashoffset = `${(len * 0.16).toFixed(1)}`;
+}
+
+function applyMadeVisual(line) {
+  const len = Number(line.dataset.length) || 50;
+  line.classList.remove("product-unformed");
+
+  line.style.transition = "none";
+  line.style.strokeDasharray = `${len}`;
+  line.style.strokeDashoffset = `${len}`;
+  line.style.opacity = "1";
+  void line.getBoundingClientRect();
+
+  line.style.transition = "stroke-dashoffset 420ms ease, stroke-width 420ms ease, opacity 420ms ease";
+  line.style.strokeDashoffset = "0";
+
+  window.setTimeout(() => {
+    line.style.transition = "";
+    line.style.strokeDasharray = "";
+    line.style.strokeDashoffset = "";
+  }, 460);
+}
+
+function resetBondVisual(line, sideType) {
+  line.style.strokeDasharray = "";
+  line.style.strokeDashoffset = "";
+  line.style.transition = "";
+
+  if (sideType === "reactant") {
+    line.classList.remove("reactant-broken");
+    line.style.opacity = "";
+    return;
+  }
+
+  line.classList.add("product-unformed");
+  line.style.opacity = "";
+}
+
+function formatFormula(text) {
+  return text.replace(/([A-Za-z\)])(\d+)/g, (full, prefix, digits) => {
+    const subDigits = digits
+      .split("")
+      .map((digit) => SUBSCRIPT_MAP[digit] || digit)
+      .join("");
+    return `${prefix}${subDigits}`;
+  });
+}
+
+function formatChemicalText(text) {
+  return text
+    .split(" ")
+    .map((token) => formatFormula(token))
+    .join(" ");
 }
 
 function playBondAnimation(line, animationClass) {
