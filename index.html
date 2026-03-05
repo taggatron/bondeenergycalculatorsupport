@@ -46,6 +46,11 @@
           <div id="reactantsArea" class="molecule-area"></div>
         </article>
 
+        <div class="reaction-arrow" aria-hidden="true">
+          <span class="reaction-arrow-line"></span>
+          <span class="reaction-arrow-head">&gt;</span>
+        </div>
+
         <article class="panel card">
           <h2>Products (Bonds Formed)</h2>
           <p class="hint">Click each bond you form.</p>
@@ -65,6 +70,19 @@
           <ul id="formedList" class="energy-list"></ul>
           <p class="subtotal">Subtotal: <span id="formedTotal">0</span> kJ/mol</p>
         </div>
+      </section>
+
+      <section class="energy-flow card" aria-live="polite">
+        <h3>Energy Flow During Bond Changes</h3>
+        <p>
+          Energy Input (breaking): <strong id="energyInValue">0</strong> kJ/mol
+        </p>
+        <p>
+          Energy Output (making): <strong id="energyOutValue">0</strong> kJ/mol
+        </p>
+        <p>
+          Net Flow (input - output): <strong id="netFlowValue">0</strong> kJ/mol
+        </p>
       </section>
 
       <section class="actions card">

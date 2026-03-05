@@ -170,6 +170,9 @@ const calcBtn = document.getElementById("calcBtn");
 const resetBtn = document.getElementById("resetBtn");
 const resultBox = document.getElementById("resultBox");
 const bondTable = document.getElementById("bondTable");
+const energyInValue = document.getElementById("energyInValue");
+const energyOutValue = document.getElementById("energyOutValue");
+const netFlowValue = document.getElementById("netFlowValue");
 
 function buildReactionOptions() {
   REACTIONS.forEach((reaction, idx) => {
@@ -288,6 +291,9 @@ function toggleBond(line) {
   const energy = Number(line.dataset.energy);
   const targetMap = sideType === "reactant" ? state.broken : state.formed;
   const className = sideType === "reactant" ? "selected-broken" : "selected-formed";
+  const animationClass = sideType === "reactant" ? "breaking-anim" : "making-anim";
+  const popupPolarity = sideType === "reactant" ? "in" : "out";
+  const sign = sideType === "reactant" ? "+" : "-";
 
   if (targetMap.has(bondId)) {
     targetMap.delete(bondId);
@@ -295,17 +301,59 @@ function toggleBond(line) {
   } else {
     targetMap.set(bondId, { bondType, energy });
     line.classList.add(className);
+    playBondAnimation(line, animationClass);
+    showEnergyPopup(line, `${sign}${energy}`, popupPolarity);
   }
 
   renderEnergyLists();
+}
+
+function playBondAnimation(line, animationClass) {
+  line.classList.remove(animationClass);
+  void line.getBoundingClientRect();
+  line.classList.add(animationClass);
+
+  window.setTimeout(() => {
+    line.classList.remove(animationClass);
+  }, 560);
+}
+
+function showEnergyPopup(line, label, polarity) {
+  const svg = line.ownerSVGElement;
+  if (!svg) {
+    return;
+  }
+
+  const x1 = Number(line.getAttribute("x1"));
+  const x2 = Number(line.getAttribute("x2"));
+  const y1 = Number(line.getAttribute("y1"));
+  const y2 = Number(line.getAttribute("y2"));
+
+  const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  text.setAttribute("x", String((x1 + x2) / 2));
+  text.setAttribute("y", String((y1 + y2) / 2 - 8));
+  text.setAttribute("class", `energy-pop ${polarity}`);
+  text.textContent = `${label} kJ/mol`;
+
+  svg.append(text);
+  window.setTimeout(() => {
+    text.remove();
+  }, 950);
 }
 
 function renderEnergyLists() {
   renderEnergyListFromMap(brokenList, state.broken);
   renderEnergyListFromMap(formedList, state.formed);
 
-  brokenTotalEl.textContent = String(sumMapValues(state.broken));
-  formedTotalEl.textContent = String(sumMapValues(state.formed));
+  const brokenTotal = sumMapValues(state.broken);
+  const formedTotal = sumMapValues(state.formed);
+  const netFlow = brokenTotal - formedTotal;
+
+  brokenTotalEl.textContent = String(brokenTotal);
+  formedTotalEl.textContent = String(formedTotal);
+  energyInValue.textContent = String(brokenTotal);
+  energyOutValue.textContent = String(formedTotal);
+  netFlowValue.textContent = String(netFlow);
 }
 
 function renderEnergyListFromMap(listEl, map) {

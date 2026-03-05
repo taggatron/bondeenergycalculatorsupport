@@ -123,8 +123,33 @@ select {
 
 .workspace-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr auto 1fr;
   gap: 1rem;
+  align-items: stretch;
+}
+
+.reaction-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  color: #395043;
+  min-width: 64px;
+}
+
+.reaction-arrow-line {
+  width: 48px;
+  height: 4px;
+  background: linear-gradient(90deg, #6c7f73, #2f5f52);
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.reaction-arrow-head {
+  font-family: "Space Grotesk", "Trebuchet MS", sans-serif;
+  font-weight: 700;
+  font-size: 1.25rem;
+  line-height: 1;
 }
 
 .hint {
@@ -144,6 +169,7 @@ select {
   border-radius: 12px;
   padding: 0.45rem;
   background: #ffffff;
+  position: relative;
 }
 
 .molecule-title {
@@ -192,6 +218,80 @@ svg {
   stroke: var(--product);
 }
 
+.bond.breaking-anim {
+  animation: breakBond 520ms ease;
+}
+
+.bond.making-anim {
+  animation: makeBond 520ms ease;
+}
+
+@keyframes breakBond {
+  0% {
+    stroke-dasharray: 1 0;
+    stroke-width: 7;
+    opacity: 0.9;
+  }
+  50% {
+    stroke-dasharray: 5 5;
+    stroke-width: 10;
+    opacity: 1;
+  }
+  100% {
+    stroke-dasharray: 1 0;
+    stroke-width: 7;
+    opacity: 0.85;
+  }
+}
+
+@keyframes makeBond {
+  0% {
+    opacity: 0.25;
+    stroke-width: 3;
+  }
+  50% {
+    opacity: 1;
+    stroke-width: 10;
+    filter: drop-shadow(0 0 6px rgba(15, 127, 114, 0.42));
+  }
+  100% {
+    opacity: 0.85;
+    stroke-width: 7;
+    filter: none;
+  }
+}
+
+.energy-pop {
+  font-size: 11px;
+  font-weight: 700;
+  text-anchor: middle;
+  animation: energyPop 900ms ease forwards;
+  pointer-events: none;
+}
+
+.energy-pop.in {
+  fill: var(--reactant);
+}
+
+.energy-pop.out {
+  fill: var(--product);
+}
+
+@keyframes energyPop {
+  0% {
+    opacity: 0;
+    transform: translateY(0px) scale(0.9);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(-3px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-18px) scale(1.02);
+  }
+}
+
 .energy-panel {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -207,6 +307,14 @@ svg {
 .subtotal {
   margin: 0.5rem 0 0;
   font-weight: 600;
+}
+
+.energy-flow h3 {
+  margin: 0 0 0.55rem;
+}
+
+.energy-flow p {
+  margin: 0.3rem 0;
 }
 
 .actions {
@@ -266,6 +374,11 @@ svg {
   .workspace-grid,
   .energy-panel {
     grid-template-columns: 1fr;
+  }
+
+  .reaction-arrow {
+    transform: rotate(90deg);
+    margin: -0.25rem auto;
   }
 
   .result {
