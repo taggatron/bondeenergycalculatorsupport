@@ -1,0 +1,275 @@
+:root {
+  --bg: #f2f4ef;
+  --card: #fcfcf7;
+  --ink: #1c241e;
+  --muted: #5f6a60;
+  --accent: #067a6e;
+  --accent-2: #d26d0e;
+  --danger: #9f2a2a;
+  --line: #d6dccf;
+  --reactant: #c45f13;
+  --product: #0f7f72;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  background: radial-gradient(circle at 10% 10%, #fffbe7 0%, transparent 35%),
+    radial-gradient(circle at 92% 18%, #d8f2ea 0%, transparent 30%),
+    var(--bg);
+  color: var(--ink);
+}
+
+.bg-shape {
+  position: fixed;
+  border-radius: 50%;
+  z-index: -1;
+  filter: blur(8px);
+  opacity: 0.55;
+}
+
+.bg-shape-a {
+  width: 18rem;
+  height: 18rem;
+  top: -4rem;
+  right: -3rem;
+  background: #ffddb3;
+}
+
+.bg-shape-b {
+  width: 22rem;
+  height: 22rem;
+  left: -7rem;
+  bottom: -8rem;
+  background: #b7e9df;
+}
+
+.app-shell {
+  width: min(1100px, 94vw);
+  margin: 2rem auto 4rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.hero h1 {
+  font-family: "Space Grotesk", "Trebuchet MS", sans-serif;
+  letter-spacing: 0.02em;
+  margin: 0.25rem 0;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  margin: 0;
+}
+
+.intro {
+  margin: 0;
+  color: #38443b;
+  max-width: 70ch;
+}
+
+.card {
+  background: color-mix(in srgb, var(--card) 86%, #ffffff);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 1rem;
+  box-shadow: 0 10px 22px rgba(40, 70, 50, 0.07);
+  animation: rise 0.5s ease both;
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.controls {
+  display: grid;
+  gap: 0.8rem;
+}
+
+label {
+  font-weight: 600;
+}
+
+select {
+  border: 1px solid #bbc8b8;
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--ink);
+  padding: 0.6rem;
+  font: inherit;
+}
+
+.equations p {
+  margin: 0.2rem 0;
+}
+
+.equations span {
+  color: var(--muted);
+}
+
+.workspace-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.hint {
+  margin: 0.2rem 0 0.8rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.molecule-area {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.8rem;
+}
+
+.molecule-card {
+  border: 1px solid #cfd8cb;
+  border-radius: 12px;
+  padding: 0.45rem;
+  background: #ffffff;
+}
+
+.molecule-title {
+  margin: 0 0 0.25rem;
+  font-size: 0.88rem;
+  color: #2b3930;
+}
+
+svg {
+  width: 100%;
+  height: 130px;
+  display: block;
+}
+
+.atom {
+  stroke: #273429;
+  stroke-width: 1.5;
+}
+
+.atom-label {
+  font-size: 14px;
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+.bond {
+  stroke: #323f35;
+  stroke-width: 7;
+  stroke-linecap: round;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: 120ms ease;
+}
+
+.bond:hover {
+  opacity: 1;
+  stroke-width: 9;
+}
+
+.bond.selected-broken {
+  stroke: var(--reactant);
+}
+
+.bond.selected-formed {
+  stroke: var(--product);
+}
+
+.energy-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.energy-list {
+  margin: 0;
+  padding-left: 1rem;
+  min-height: 3.2rem;
+}
+
+.subtotal {
+  margin: 0.5rem 0 0;
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.btn {
+  font: inherit;
+  border-radius: 999px;
+  padding: 0.55rem 1rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #f2fffb;
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: #9ab2a0;
+  color: #1f3227;
+}
+
+.result {
+  margin-left: auto;
+  font-weight: 600;
+}
+
+.result.exo {
+  color: #0d735f;
+}
+
+.result.endo {
+  color: var(--danger);
+}
+
+.bond-table {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.bond-chip {
+  border: 1px solid #bfd1c4;
+  background: #f6fcf9;
+  border-radius: 999px;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.88rem;
+}
+
+@media (max-width: 860px) {
+  .workspace-grid,
+  .energy-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .result {
+    margin-left: 0;
+    width: 100%;
+  }
+}
