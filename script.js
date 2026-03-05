@@ -250,36 +250,74 @@ function drawBonds(svg, molecule, instanceKey, sideType) {
     const dx = atomB.x - atomA.x;
     const dy = atomB.y - atomA.y;
     const length = Math.hypot(dx, dy);
+    const order = getBondOrder(bond.type);
+    const offsets = getBondOffsets(order);
 
-    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    line.setAttribute("x1", String(atomA.x));
-    line.setAttribute("y1", String(atomA.y));
-    line.setAttribute("x2", String(atomB.x));
-    line.setAttribute("y2", String(atomB.y));
-    line.setAttribute("class", "bond");
-    line.setAttribute("role", "button");
-    line.setAttribute("tabindex", "0");
-    line.setAttribute("aria-label", `${bond.type} bond, ${energy} kilojoules per mole`);
-    line.dataset.sideType = sideType;
-    line.dataset.bondId = bondId;
-    line.dataset.bondType = bond.type;
-    line.dataset.energy = String(energy);
-    line.dataset.length = String(length);
+    offsets.forEach((offset, idx) => {
+      const segment = createBondSegment(atomA, atomB, dx, dy, length, offset);
+      segment.setAttribute("class", "bond");
+      segment.dataset.bondRef = bondId;
 
-    if (sideType === "product") {
-      line.classList.add("product-unformed");
-    }
-
-    line.addEventListener("click", () => toggleBond(line));
-    line.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        toggleBond(line);
+      if (sideType === "product") {
+        segment.classList.add("product-unformed");
       }
-    });
 
-    svg.append(line);
+      if (idx === 0) {
+        segment.setAttribute("role", "button");
+        segment.setAttribute("tabindex", "0");
+        segment.setAttribute("aria-label", `${bond.type} bond, ${energy} kilojoules per mole`);
+        segment.dataset.sideType = sideType;
+        segment.dataset.bondId = bondId;
+        segment.dataset.bondType = bond.type;
+        segment.dataset.energy = String(energy);
+        segment.dataset.length = String(length);
+
+        segment.addEventListener("click", () => toggleBond(segment));
+        segment.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            toggleBond(segment);
+          }
+        });
+      } else {
+        segment.style.pointerEvents = "none";
+      }
+
+      svg.append(segment);
+    });
   });
+}
+
+function getBondOrder(type) {
+  if (type.includes("#")) {
+    return 3;
+  }
+  if (type.includes("=")) {
+    return 2;
+  }
+  return 1;
+}
+
+function getBondOffsets(order) {
+  if (order === 2) {
+    return [4.2, -4.2];
+  }
+  if (order === 3) {
+    return [5, 0, -5];
+  }
+  return [0];
+}
+
+function createBondSegment(atomA, atomB, dx, dy, length, offset) {
+  const nx = length === 0 ? 0 : -dy / length;
+  const ny = length === 0 ? 0 : dx / length;
+
+  const segment = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  segment.setAttribute("x1", String(atomA.x + nx * offset));
+  segment.setAttribute("y1", String(atomA.y + ny * offset));
+  segment.setAttribute("x2", String(atomB.x + nx * offset));
+  segment.setAttribute("y2", String(atomB.y + ny * offset));
+  return segment;
 }
 
 function drawAtoms(svg, molecule) {
@@ -315,14 +353,15 @@ function toggleBond(line) {
   const animationClass = sideType === "reactant" ? "breaking-anim" : "making-anim";
   const popupPolarity = sideType === "reactant" ? "in" : "out";
   const sign = sideType === "reactant" ? "+" : "-";
+  const bondLines = getBondLines(line);
 
   if (targetMap.has(bondId)) {
     targetMap.delete(bondId);
-    line.classList.remove(className);
+    bondLines.forEach((bondLine) => bondLine.classList.remove(className));
     resetBondVisual(line, sideType);
   } else {
     targetMap.set(bondId, { bondType, energy });
-    line.classList.add(className);
+    bondLines.forEach((bondLine) => bondLine.classList.add(className));
     playBondAnimation(line, animationClass);
     showEnergyPopup(line, `${sign}${energy}`, popupPolarity);
     if (sideType === "reactant") {
@@ -335,46 +374,71 @@ function toggleBond(line) {
   renderEnergyLists();
 }
 
+function getBondLines(line) {
+  const svg = line.ownerSVGElement;
+  const bondId = line.dataset.bondId;
+  if (!svg || !bondId) {
+    return [line];
+  }
+  return Array.from(svg.querySelectorAll(`line[data-bond-ref="${bondId}"]`));
+}
+
 function applyBrokenVisual(line) {
   const len = Number(line.dataset.length) || 50;
-  line.classList.add("reactant-broken");
-  line.style.strokeDasharray = `${(len * 0.34).toFixed(1)} ${(len * 0.32).toFixed(1)}`;
-  line.style.strokeDashoffset = `${(len * 0.16).toFixed(1)}`;
+  getBondLines(line).forEach((bondLine) => {
+    bondLine.classList.add("reactant-broken");
+    bondLine.style.strokeDasharray = `${(len * 0.34).toFixed(1)} ${(len * 0.32).toFixed(1)}`;
+    bondLine.style.strokeDashoffset = `${(len * 0.16).toFixed(1)}`;
+  });
 }
 
 function applyMadeVisual(line) {
   const len = Number(line.dataset.length) || 50;
-  line.classList.remove("product-unformed");
+  const bondLines = getBondLines(line);
+  bondLines.forEach((bondLine) => {
+    bondLine.classList.remove("product-unformed");
 
-  line.style.transition = "none";
-  line.style.strokeDasharray = `${len}`;
-  line.style.strokeDashoffset = `${len}`;
-  line.style.opacity = "1";
+    bondLine.style.transition = "none";
+    bondLine.style.strokeDasharray = `${len}`;
+    bondLine.style.strokeDashoffset = `${len}`;
+    bondLine.style.opacity = "1";
+  });
   void line.getBoundingClientRect();
 
-  line.style.transition = "stroke-dashoffset 420ms ease, stroke-width 420ms ease, opacity 420ms ease";
-  line.style.strokeDashoffset = "0";
+  bondLines.forEach((bondLine) => {
+    bondLine.style.transition = "stroke-dashoffset 420ms ease, stroke-width 420ms ease, opacity 420ms ease";
+    bondLine.style.strokeDashoffset = "0";
+  });
 
   window.setTimeout(() => {
-    line.style.transition = "";
-    line.style.strokeDasharray = "";
-    line.style.strokeDashoffset = "";
+    bondLines.forEach((bondLine) => {
+      bondLine.style.transition = "";
+      bondLine.style.strokeDasharray = "";
+      bondLine.style.strokeDashoffset = "";
+    });
   }, 460);
 }
 
 function resetBondVisual(line, sideType) {
-  line.style.strokeDasharray = "";
-  line.style.strokeDashoffset = "";
-  line.style.transition = "";
+  const bondLines = getBondLines(line);
+  bondLines.forEach((bondLine) => {
+    bondLine.style.strokeDasharray = "";
+    bondLine.style.strokeDashoffset = "";
+    bondLine.style.transition = "";
+  });
 
   if (sideType === "reactant") {
-    line.classList.remove("reactant-broken");
-    line.style.opacity = "";
+    bondLines.forEach((bondLine) => {
+      bondLine.classList.remove("reactant-broken");
+      bondLine.style.opacity = "";
+    });
     return;
   }
 
-  line.classList.add("product-unformed");
-  line.style.opacity = "";
+  bondLines.forEach((bondLine) => {
+    bondLine.classList.add("product-unformed");
+    bondLine.style.opacity = "";
+  });
 }
 
 function formatFormula(text) {

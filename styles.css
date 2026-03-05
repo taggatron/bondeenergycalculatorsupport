@@ -323,8 +323,52 @@ svg {
   margin: 0 0 0.55rem;
 }
 
-.energy-flow p {
-  margin: 0.3rem 0;
+.flow-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+}
+
+.flow-box {
+  border-radius: 12px;
+  border: 1px solid;
+  padding: 0.75rem 0.9rem;
+  box-shadow: 0 10px 18px rgba(28, 36, 30, 0.08);
+}
+
+.flow-in {
+  border-color: #3d9866;
+  background: linear-gradient(135deg, #e7f8ed, #f4fff7);
+}
+
+.flow-out {
+  border-color: #c95a5a;
+  background: linear-gradient(135deg, #ffebeb, #fff6f6);
+}
+
+.flow-label {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #3a4a3d;
+}
+
+.flow-value {
+  margin: 0.3rem 0 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.flow-formula,
+.flow-net {
+  margin: 0.7rem 0 0;
+}
+
+.flow-formula {
+  color: #33443a;
+}
+
+.flow-net {
+  font-size: 1.05rem;
 }
 
 .actions {
@@ -382,7 +426,8 @@ svg {
 
 @media (max-width: 860px) {
   .workspace-grid,
-  .energy-panel {
+  .energy-panel,
+  .flow-grid {
     grid-template-columns: 1fr;
   }
 

@@ -74,13 +74,20 @@
 
       <section class="energy-flow card" aria-live="polite">
         <h3>Energy Flow During Bond Changes</h3>
-        <p>
-          Energy Input (breaking): <strong id="energyInValue">0</strong> kJ/mol
+        <div class="flow-grid">
+          <div class="flow-box flow-in">
+            <p class="flow-label">Energy Input (breaking bonds)</p>
+            <p class="flow-value"><strong id="energyInValue">0</strong> kJ/mol</p>
+          </div>
+          <div class="flow-box flow-out">
+            <p class="flow-label">Energy Output (forming bonds)</p>
+            <p class="flow-value"><strong id="energyOutValue">0</strong> kJ/mol</p>
+          </div>
+        </div>
+        <p class="flow-formula">
+          Energy change formula: <strong>ΔH = ΣE(bonds broken) - ΣE(bonds formed)</strong>
         </p>
-        <p>
-          Energy Output (making): <strong id="energyOutValue">0</strong> kJ/mol
-        </p>
-        <p>
+        <p class="flow-net">
           Net Flow (input - output): <strong id="netFlowValue">0</strong> kJ/mol
         </p>
       </section>
