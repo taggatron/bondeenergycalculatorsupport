@@ -74,6 +74,9 @@
 
       <section class="energy-flow card" aria-live="polite">
         <h3>Energy Flow During Bond Changes</h3>
+        <p class="flow-formula">
+          Energy change formula: <strong>ΔH = ΣE(bonds broken) - ΣE(bonds formed)</strong>
+        </p>
         <div class="flow-grid">
           <div class="flow-box flow-in">
             <p class="flow-label">Energy Input (breaking bonds)</p>
@@ -84,12 +87,15 @@
             <p class="flow-value"><strong id="energyOutValue">0</strong> kJ/mol</p>
           </div>
         </div>
-        <p class="flow-formula">
-          Energy change formula: <strong>ΔH = ΣE(bonds broken) - ΣE(bonds formed)</strong>
-        </p>
-        <p class="flow-net">
-          Net Flow (input - output): <strong id="netFlowValue">0</strong> kJ/mol
-        </p>
+        <div id="flowNetBox" class="flow-net-box is-hidden">
+          <p class="flow-net">
+            Net Flow (input - output): <strong id="netFlowValue">0</strong> kJ/mol
+          </p>
+          <p class="flow-thermal">
+            <span id="thermalEmoji" aria-hidden="true">⚖️</span>
+            <strong id="thermalLabel">Thermoneutral</strong>
+          </p>
+        </div>
       </section>
 
       <section class="actions card">

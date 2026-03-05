@@ -173,6 +173,9 @@ const bondTable = document.getElementById("bondTable");
 const energyInValue = document.getElementById("energyInValue");
 const energyOutValue = document.getElementById("energyOutValue");
 const netFlowValue = document.getElementById("netFlowValue");
+const thermalEmoji = document.getElementById("thermalEmoji");
+const thermalLabel = document.getElementById("thermalLabel");
+const flowNetBox = document.getElementById("flowNetBox");
 
 const SUBSCRIPT_MAP = {
   0: "\u2080",
@@ -201,6 +204,7 @@ function clearSelections() {
   state.formed.clear();
   resultBox.textContent = "Selections reset. Click bonds and calculate.";
   resultBox.className = "result";
+  setNetFlowVisibility(false);
 }
 
 function renderReaction() {
@@ -372,6 +376,14 @@ function toggleBond(line) {
   }
 
   renderEnergyLists();
+  setNetFlowVisibility(false);
+}
+
+function setNetFlowVisibility(isVisible) {
+  if (!flowNetBox) {
+    return;
+  }
+  flowNetBox.classList.toggle("is-hidden", !isVisible);
 }
 
 function getBondLines(line) {
@@ -504,6 +516,24 @@ function renderEnergyLists() {
   energyInValue.textContent = String(brokenTotal);
   energyOutValue.textContent = String(formedTotal);
   netFlowValue.textContent = String(netFlow);
+  updateThermalIndicator(netFlow);
+}
+
+function updateThermalIndicator(netFlow) {
+  if (netFlow < 0) {
+    thermalEmoji.textContent = "🔥";
+    thermalLabel.textContent = "Exothermic";
+    return;
+  }
+
+  if (netFlow > 0) {
+    thermalEmoji.textContent = "🧊";
+    thermalLabel.textContent = "Endothermic";
+    return;
+  }
+
+  thermalEmoji.textContent = "⚖️";
+  thermalLabel.textContent = "Thermoneutral";
 }
 
 function renderEnergyListFromMap(listEl, map) {
@@ -546,6 +576,7 @@ function calculateDeltaH() {
         : `${text} (Thermoneutral)`;
 
   resultBox.className = `result ${deltaH < 0 ? "exo" : deltaH > 0 ? "endo" : ""}`;
+  setNetFlowVisibility(true);
 }
 
 function renderBondTable() {
